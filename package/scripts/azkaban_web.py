@@ -53,7 +53,6 @@ class WebServer(Script):
         from params import java_home
         self.configure(env)
         Execute('cd {0} && export JAVA_HOME={1} && bin/start-web.sh'.format(AZKABAN_WEB_HOME, java_home))
-        self.status(env)
 
     def status(self, env):
         try:
