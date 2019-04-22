@@ -46,11 +46,12 @@ class WebServer(Script):
         self.configure(env)
 
     def stop(self, env):
-        Execute('cd {0} && bin/shutdown-web.sh'.format(AZKABAN_WEB_HOME))
+        Execute('cd {0} && export JAVA_HOME={1} && bin/shutdown-web.sh'.format(AZKABAN_WEB_HOME, java_home))
 
     def start(self, env):
         self.configure(env)
-        Execute('cd {0} && bin/start-web.sh'.format(AZKABAN_WEB_HOME))
+        Execute('cd {0} && export JAVA_HOME={1} && bin/start-web.sh'.format(AZKABAN_WEB_HOME, java_home))
+        status(self, env)
 
     def status(self, env):
         try:

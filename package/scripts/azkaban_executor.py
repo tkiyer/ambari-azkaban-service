@@ -44,12 +44,15 @@ class ExecutorServer(Script):
         self.configure(env)
 
     def stop(self, env):
-        Execute('cd {0} && bin/shutdown-exec.sh'.format(AZKABAN_EXEC_HOME))
+        Execute('cd {0} && export JAVA_HOME={1} && bin/shutdown-exec.sh'.format(AZKABAN_EXEC_HOME, java_home))
 
     def start(self, env):
         from params import azkaban_executor_properties
         self.configure(env)
-        Execute('cd {0} && bin/start-exec.sh'.format(AZKABAN_EXEC_HOME))
+        Execute('cd {0} && export JAVA_HOME={1} && bin/start-exec.sh'.format(AZKABAN_EXEC_HOME, java_home))
+        # check process status
+        status(self, env)
+
         Execute(
             'curl http://localhost:{0}/executor?action=activate'.format(azkaban_executor_properties['executor.port'])
         )
