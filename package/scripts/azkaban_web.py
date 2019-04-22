@@ -42,16 +42,15 @@ class WebServer(Script):
             )
         )
         Execute('rm -f /tmp/azkaban-web.tgz')
-        Execute('cd {0}'.format(AZKABAN_INSTALL_DIR))
-        Execute('mv azkaban-exec-server-0.1.0-SNAPSHOT {0}'.format(AZKABAN_WEB_HOME))
+        Execute('mv /usr/local/azkaban-web-server-0.1.0-SNAPSHOT {0}'.format(AZKABAN_WEB_HOME))
         self.configure(env)
 
     def stop(self, env):
-        Execute('cd {0} && bin/azkaban-web-shutdown.sh'.format(AZKABAN_WEB_HOME))
+        Execute('cd {0} && bin/shutdown-web.sh'.format(AZKABAN_WEB_HOME))
 
     def start(self, env):
         self.configure(env)
-        Execute('cd {0} && bin/azkaban-web-start.sh'.format(AZKABAN_WEB_HOME))
+        Execute('cd {0} && bin/start-web.sh'.format(AZKABAN_WEB_HOME))
 
     def status(self, env):
         try:

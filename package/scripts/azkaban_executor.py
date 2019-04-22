@@ -32,8 +32,7 @@ class ExecutorServer(Script):
             )
         )
         Execute('rm -f /tmp/azkaban-exec.tgz')
-        Execute('cd {0}'.format(AZKABAN_INSTALL_DIR))
-        Execute('mv azkaban-exec-server-0.1.0-SNAPSHOT {0}'.format(AZKABAN_EXEC_HOME))
+        Execute('mv /usr/local/azkaban-exec-server-0.1.0-SNAPSHOT {0}'.format(AZKABAN_EXEC_HOME))
         Execute('mkdir {0}'.format(AZKABAN_EXEC_HOME + '/native-lib'))
         Execute('gcc /tmp/execute-as-user.c -o /tmp/execute-as-user')
         Execute('cp /tmp/execute-as-user {0}'.format(AZKABAN_EXEC_HOME + '/native-lib'))
@@ -45,12 +44,12 @@ class ExecutorServer(Script):
         self.configure(env)
 
     def stop(self, env):
-        Execute('cd {0} && bin/azkaban-executor-shutdown.sh'.format(AZKABAN_EXEC_HOME))
+        Execute('cd {0} && bin/shutdown-exec.sh'.format(AZKABAN_EXEC_HOME))
 
     def start(self, env):
         from params import azkaban_executor_properties
         self.configure(env)
-        Execute('cd {0} && bin/azkaban-executor-start.sh'.format(AZKABAN_EXEC_HOME))
+        Execute('cd {0} && bin/start-exec.sh'.format(AZKABAN_EXEC_HOME))
         Execute(
             'curl http://localhost:{0}/executor?action=activate'.format(azkaban_executor_properties['executor.port'])
         )
