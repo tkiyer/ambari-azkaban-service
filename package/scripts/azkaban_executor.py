@@ -35,6 +35,8 @@ class ExecutorServer(Script):
         )
         Execute('gcc /tmp/execute-as-user.c -o /tmp/execute-as-user')
         Execute('cp /tmp/execute-as-user /usr/local/azkaban/native-lib')
+        Execute('chown root execute-as-user')
+        Execute('chown 6050 execute-as-user')
         Execute('echo execute.as.user=true > {0} '.format(AZKABAN_HOME + '/plugins/jobtypes/commonprivate.properties'))
         Execute('echo azkaban.native.lib=/usr/local/azkaban/native-lib > {0} '.format(AZKABAN_HOME + '/plugins/jobtypes/commonprivate.properties'))
         Execute('echo azkaban.group.name=hadoop > {0} '.format(AZKABAN_HOME + '/plugins/jobtypes/commonprivate.properties'))
