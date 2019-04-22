@@ -14,7 +14,7 @@
 
 import os.path as path
 
-from common import AZKABAN_DB_URL, AZKABAN_WEB_URL, AZKABAN_NAME, AZKABAN_HOME, AZKABAN_CONF, AZKABAN_SQL
+from common import AZKABAN_DB_URL, AZKABAN_WEB_URL, AZKABAN_WEB_HOME, AZKABAN_WEB_CONF, AZKABAN_INSTALL_DIR
 from resource_management.core.exceptions import ExecutionFailed, ComponentIsNotRunning
 from resource_management.core.resources.system import Execute
 from resource_management.libraries.script.script import Script
@@ -23,34 +23,35 @@ from resource_management.libraries.script.script import Script
 class WebServer(Script):
     def install(self, env):
         from params import java_home, azkaban_db
-        Execute('{0} | xargs wget -O /tmp/{1}.tgz'.format(AZKABAN_WEB_URL, AZKABAN_NAME))
-        Execute('{0} | xargs wget -O /tmp/{1}'.format(AZKABAN_DB_URL, AZKABAN_SQL))
+        Execute('{0} | xargs wget -O /tmp/azkaban-web.tgz'.format(AZKABAN_WEB_URL))
+        Execute('{0} | xargs wget -O /tmp/azkaban-create-all.sql'.format(AZKABAN_DB_URL))
         Execute(
-            'mysql -h{0} -P{1} -D{2} -u{3} -p{4} < {5}'.format(
+            'mysql -h{0} -P{1} -D{2} -u{3} -p{4} < /tmp/azkaban-create-all.sql'.format(
                 azkaban_db['mysql.host'],
                 azkaban_db['mysql.port'],
                 azkaban_db['mysql.database'],
                 azkaban_db['mysql.user'],
-                azkaban_db['mysql.password'],
-                '/tmp/{0}'.format(AZKABAN_SQL),
+                azkaban_db['mysql.password']
             )
         )
-        Execute('echo execute.as.user=true > {0} '.format(AZKABAN_HOME + '/plugins/jobtypes/commonprivate.properties'))
+        
         Execute(
-            'export JAVA_HOME={0} && tar -xf /tmp/{1}.tgz -C {2} --strip-components 1'.format(
+            'export JAVA_HOME={0} && tar -zxvf /tmp/azkaban-web.tgz -C {1} --strip-components 1'.format(
                 java_home,
-                AZKABAN_NAME,
-                AZKABAN_HOME
+                AZKABAN_INSTALL_DIR
             )
         )
+        Execute('rm -f /tmp/azkaban-web.tgz')
+        Execute('cd {0}'.format(AZKABAN_INSTALL_DIR))
+        Execute('mv azkaban-exec-server-0.1.0-SNAPSHOT {0}'.format(AZKABAN_WEB_HOME))
         self.configure(env)
 
     def stop(self, env):
-        Execute('cd {0} && bin/azkaban-web-shutdown.sh'.format(AZKABAN_HOME))
+        Execute('cd {0} && bin/azkaban-web-shutdown.sh'.format(AZKABAN_WEB_HOME))
 
     def start(self, env):
         self.configure(env)
-        Execute('cd {0} && bin/azkaban-web-start.sh'.format(AZKABAN_HOME))
+        Execute('cd {0} && bin/azkaban-web-start.sh'.format(AZKABAN_WEB_HOME))
 
     def status(self, env):
         try:
@@ -67,7 +68,7 @@ class WebServer(Script):
         from params import azkaban_db, azkaban_mail, azkaban_web_properties, azkaban_users, global_properties, log4j_properties
         key_val_template = '{0}={1}\n'
 
-        with open(path.join(AZKABAN_CONF, 'azkaban.properties'), 'w') as f:
+        with open(path.join(AZKABAN_WEB_CONF, 'azkaban.properties'), 'w') as f:
             for key, value in azkaban_db.iteritems():
                 f.write(key_val_template.format(key, value))
             for key, value in azkaban_mail.iteritems():
@@ -77,13 +78,13 @@ class WebServer(Script):
                     f.write(key_val_template.format(key, value))
             f.write(azkaban_web_properties['content'])
 
-        with open(path.join(AZKABAN_CONF, 'azkaban-users.xml'), 'w') as f:
+        with open(path.join(AZKABAN_WEB_CONF, 'azkaban-users.xml'), 'w') as f:
             f.write(str(azkaban_users['content']))
 
-        with open(path.join(AZKABAN_CONF, 'global.properties'), 'w') as f:
+        with open(path.join(AZKABAN_WEB_CONF, 'global.properties'), 'w') as f:
             f.write(global_properties['content'])
 
-        with open(path.join(AZKABAN_CONF, 'log4j.properties'), 'w') as f:
+        with open(path.join(AZKABAN_WEB_CONF, 'log4j.properties'), 'w') as f:
             f.write(log4j_properties['content'])
 
 

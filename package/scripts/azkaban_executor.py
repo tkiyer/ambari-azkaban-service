@@ -14,7 +14,7 @@
 
 import os.path as path
 
-from common import AZKABAN_EXECUTOR_URL, AZKABAN_NAME, AZKABAN_HOME, AZKABAN_CONF, AZKABAN_EXEC_AS_USER_C_URL
+from common import AZKABAN_EXECUTOR_URL, AZKABAN_EXEC_HOME, AZKABAN_INSTALL_DIR, AZKABAN_EXEC_CONF, AZKABAN_EXEC_AS_USER_C_URL
 from resource_management.core.exceptions import ExecutionFailed, ComponentIsNotRunning
 from resource_management.core.resources.system import Execute
 from resource_management.libraries.script.script import Script
@@ -23,32 +23,34 @@ from resource_management.libraries.script.script import Script
 class ExecutorServer(Script):
     def install(self, env):
         from params import java_home
-        Execute('{0} | xargs wget -O /tmp/{1}.tgz'.format(AZKABAN_EXECUTOR_URL, AZKABAN_NAME))
-        Execute('{0} | xargs wget -O /tmp/{1}'.format(AZKABAN_EXEC_AS_USER_C_URL, 'execute-as-user.c'))
+        Execute('{0} | xargs wget -O /tmp/azkaban-exec.tgz'.format(AZKABAN_EXECUTOR_URL))
+        Execute('{0} | xargs wget -O /tmp/execute-as-user.c'.format(AZKABAN_EXEC_AS_USER_C_URL))
         Execute(
-            'export JAVA_HOME={0} && tar -xf /tmp/{1}.tgz -C {2} --strip-components 1'.format(
+            'export JAVA_HOME={0} && tar -zxvf /tmp/azkaban-exec.tgz -C {1} --strip-components 1'.format(
                 java_home,
-                AZKABAN_NAME,
-                AZKABAN_HOME
+                AZKABAN_INSTALL_DIR
             )
         )
-        Execute('mkdir {0}'.format(AZKABAN_HOME + '/native-lib'))
+        Execute('rm -f /tmp/azkaban-exec.tgz')
+        Execute('cd {0}'.format(AZKABAN_INSTALL_DIR))
+        Execute('mv azkaban-exec-server-0.1.0-SNAPSHOT {0}'.format(AZKABAN_EXEC_HOME))
+        Execute('mkdir {0}'.format(AZKABAN_EXEC_HOME + '/native-lib'))
         Execute('gcc /tmp/execute-as-user.c -o /tmp/execute-as-user')
-        Execute('cp /tmp/execute-as-user /usr/local/azkaban/native-lib')
-        Execute('chown root /usr/local/azkaban/native-lib/execute-as-user')
-        Execute('chown 6050 /usr/local/azkaban/native-lib/execute-as-user')
-        Execute('echo execute.as.user=true > {0} '.format(AZKABAN_HOME + '/plugins/jobtypes/commonprivate.properties'))
-        Execute('echo azkaban.native.lib=/usr/local/azkaban/native-lib > {0} '.format(AZKABAN_HOME + '/plugins/jobtypes/commonprivate.properties'))
-        Execute('echo azkaban.group.name=hadoop > {0} '.format(AZKABAN_HOME + '/plugins/jobtypes/commonprivate.properties'))
+        Execute('cp /tmp/execute-as-user {0}'.format(AZKABAN_EXEC_HOME + '/native-lib'))
+        Execute('chown root {0}'.format(AZKABAN_EXEC_HOME + '/native-lib/execute-as-user'))
+        Execute('chown 6050 {0}'.format(AZKABAN_EXEC_HOME + '/native-lib/execute-as-user'))
+        Execute('echo execute.as.user=true > {0} '.format(AZKABAN_EXEC_HOME + '/plugins/jobtypes/commonprivate.properties'))
+        Execute('echo azkaban.native.lib={0} > {1} '.format(AZKABAN_EXEC_HOME + '/native-lib', AZKABAN_EXEC_HOME + '/plugins/jobtypes/commonprivate.properties'))
+        Execute('echo azkaban.group.name=hadoop > {0} '.format(AZKABAN_EXEC_HOME + '/plugins/jobtypes/commonprivate.properties'))
         self.configure(env)
 
     def stop(self, env):
-        Execute('cd {0} && bin/azkaban-executor-shutdown.sh'.format(AZKABAN_HOME))
+        Execute('cd {0} && bin/azkaban-executor-shutdown.sh'.format(AZKABAN_EXEC_HOME))
 
     def start(self, env):
         from params import azkaban_executor_properties
         self.configure(env)
-        Execute('cd {0} && bin/azkaban-executor-start.sh'.format(AZKABAN_HOME))
+        Execute('cd {0} && bin/azkaban-executor-start.sh'.format(AZKABAN_EXEC_HOME))
         Execute(
             'curl http://localhost:{0}/executor?action=activate'.format(azkaban_executor_properties['executor.port'])
         )
@@ -68,7 +70,7 @@ class ExecutorServer(Script):
         from params import azkaban_executor_properties, log4j_properties, azkaban_db, azkaban_mail
         key_val_template = '{0}={1}\n'
 
-        with open(path.join(AZKABAN_CONF, 'azkaban.properties'), 'w') as f:
+        with open(path.join(AZKABAN_EXEC_CONF, 'azkaban.properties'), 'w') as f:
             for key, value in azkaban_db.iteritems():
                 f.write(key_val_template.format(key, value))
             for key, value in azkaban_mail.iteritems():
@@ -78,7 +80,7 @@ class ExecutorServer(Script):
                     f.write(key_val_template.format(key, value))
             f.write(azkaban_executor_properties['content'])
 
-        with open(path.join(AZKABAN_CONF, 'log4j.properties'), 'w') as f:
+        with open(path.join(AZKABAN_EXEC_CONF, 'log4j.properties'), 'w') as f:
             f.write(log4j_properties['content'])
 
 
