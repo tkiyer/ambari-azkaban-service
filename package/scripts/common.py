@@ -16,14 +16,17 @@ import os
 
 import ConfigParser
 
-script_dir = os.path.dirname(os.path.realpath(__file__))
 config = ConfigParser.ConfigParser()
-config.readfp(open(os.path.join(script_dir, 'download.ini')))
+## Add stack version for HDP 3.0
+stack_version_unformatted = config['clusterLevelParams']['stack_version']
+# Hue download url, changed the url by added '/' before hue/hue-${verion}.tar.gz
+download_url = 'cat /etc/yum.repos.d/ambari.repo | grep "baseurl" | awk -F \'=\' \'{print $2"/azkaban/azkaban-web-server-3.38.0.tar.gz"}\''
 
-AZKABAN_HOME = '/usr/hdp/current/azkaban'
+AZKABAN_HOME = '/usr/local/azkaban'
 AZKABAN_NAME = 'azkaban'
 AZKABAN_SQL = 'azkaban.sql'
-AZKABAN_WEB_URL = config.get('download', 'azkaban_web_url')
-AZKABAN_EXECUTOR_URL = config.get('download', 'azkaban_executor_url')
-AZKABAN_DB_URL = config.get('download', 'azkaban_db_url')
+AZKABAN_WEB_URL = 'cat /etc/yum.repos.d/ambari.repo | grep "baseurl" | awk -F \'=\' \'{print $2"/azkaban/azkaban-web-server-3.38.0.tar.gz"}\''
+AZKABAN_EXECUTOR_URL = 'cat /etc/yum.repos.d/ambari.repo | grep "baseurl" | awk -F \'=\' \'{print $2"/azkaban/azkaban-exec-server-3.38.0.tar.gz"}\''
+AZKABAN_DB_URL = 'cat /etc/yum.repos.d/ambari.repo | grep "baseurl" | awk -F \'=\' \'{print $2"/azkaban/create-all-sql-3.38.0.sql"}\''
+AZKABAN_EXEC_AS_USER_C_URL = 'cat /etc/yum.repos.d/ambari.repo | grep "baseurl" | awk -F \'=\' \'{print $2"/azkaban/execute-as-user.c"}\''
 AZKABAN_CONF = AZKABAN_HOME + '/conf'

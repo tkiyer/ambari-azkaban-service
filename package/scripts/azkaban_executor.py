@@ -14,7 +14,7 @@
 
 import os.path as path
 
-from common import AZKABAN_EXECUTOR_URL, AZKABAN_NAME, AZKABAN_HOME, AZKABAN_CONF
+from common import AZKABAN_EXECUTOR_URL, AZKABAN_NAME, AZKABAN_HOME, AZKABAN_CONF, AZKABAN_EXEC_AS_USER_C_URL
 from resource_management.core.exceptions import ExecutionFailed, ComponentIsNotRunning
 from resource_management.core.resources.system import Execute
 from resource_management.libraries.script.script import Script
@@ -24,14 +24,20 @@ class ExecutorServer(Script):
     def install(self, env):
         from params import java_home
         Execute('wget --no-check-certificate {0}  -O /tmp/{1}'.format(AZKABAN_EXECUTOR_URL, AZKABAN_NAME))
+        Execute('wget --no-check-certificate {0}  -O /tmp/{1}'.format(AZKABAN_EXEC_AS_USER_C_URL, 'execute-as-user.c'))
         Execute(
-            'mkdir -p {0} {1} {2} || echo "whatever"'.format(
+            'mkdir -p {0} {1} {2} {3} || echo "whatever"'.format(
                 AZKABAN_HOME + '/conf',
                 AZKABAN_HOME + '/extlib',
                 AZKABAN_HOME + '/plugins/jobtypes',
+                AZKABAN_HOME + '/native-lib',
             )
         )
-        Execute('echo execute.as.user=false > {0} '.format(AZKABAN_HOME + '/plugins/jobtypes/commonprivate.properties'))
+        Execute('gcc /tmp/execute-as-user.c -o /tmp/execute-as-user')
+        Execute('cp /tmp/execute-as-user /usr/local/azkaban/native-lib')
+        Execute('echo execute.as.user=true > {0} '.format(AZKABAN_HOME + '/plugins/jobtypes/commonprivate.properties'))
+        Execute('echo azkaban.native.lib=/usr/local/azkaban/native-lib > {0} '.format(AZKABAN_HOME + '/plugins/jobtypes/commonprivate.properties'))
+        Execute('echo azkaban.group.name=hadoop > {0} '.format(AZKABAN_HOME + '/plugins/jobtypes/commonprivate.properties'))
         Execute(
             'export JAVA_HOME={0} && tar -xf /tmp/{1} -C {2} --strip-components 1'.format(
                 java_home,
@@ -64,11 +70,13 @@ class ExecutorServer(Script):
                 raise ef
 
     def configure(self, env):
-        from params import azkaban_executor_properties, log4j_properties, azkaban_db
+        from params import azkaban_executor_properties, log4j_properties, azkaban_db, azkaban_mail
         key_val_template = '{0}={1}\n'
 
         with open(path.join(AZKABAN_CONF, 'azkaban.properties'), 'w') as f:
             for key, value in azkaban_db.iteritems():
+                f.write(key_val_template.format(key, value))
+            for key, value in azkaban_mail.iteritems():
                 f.write(key_val_template.format(key, value))
             for key, value in azkaban_executor_properties.iteritems():
                 if key != 'content':

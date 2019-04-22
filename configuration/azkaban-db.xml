@@ -23,7 +23,7 @@
     </property>
     <property>
         <name>mysql.host</name>
-        <value>fp-bd5</value>
+        <value>c7501.ambari.apache.org</value>
     </property>
     <property>
         <name>mysql.port</name>

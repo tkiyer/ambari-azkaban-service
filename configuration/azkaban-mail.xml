@@ -16,35 +16,22 @@
 -->
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <configuration>
-    <property>
-        <name>executor.port</name>
-        <value>12321</value>
-    </property>
 
     <property>
-        <name>executor.maxThreads</name>
-        <value>50</value>
+        <name>mail.sender</name>
+        <value>notify@example.com</value>
     </property>
-
     <property>
-        <name>executor.flow.threads</name>
-        <value>30</value>
+        <name>mail.host</name>
+        <value>stmp.example.com:25</value>
     </property>
-
     <property>
-        <name>content</name>
-        <display-name>azkaban.properties template</display-name>
-        <description>Custom azkaban.properties</description>
-        <value>
-azkaban.jobtype.plugin.dir=plugins/jobtypes
-#
-# Azkaban Executor settings
-        </value>
-        <value-attributes>
-            <type>content</type>
-            <show-property-name>false</show-property-name>
-        </value-attributes>
-        <on-ambari-upgrade add="true"/>
+        <name>mail.user</name>
+        <value>notify</value>
+    </property>
+    <property>
+        <name>mail.password</name>
+        <value>notify</value>
     </property>
 
 </configuration>

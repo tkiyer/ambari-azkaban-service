@@ -21,34 +21,72 @@
         <name>jetty.port</name>
         <value>10101</value>
     </property>
+    <property>
+        <name>Execute.as.user</name>
+        <value>true</value>
+    </property>
+    <property>
+        <name>azkaban.name</name>
+        <value>BI</value>
+    </property>
+    <property>
+        <name>azkaban.label</name>
+        <value>localhost</value>
+    </property>
+    <property>
+        <name>user.manager.class</name>
+        <value>azkaban.user.XmlUserManager</value>
+    </property>
+    <property>
+        <name>user.manager.xml.file</name>
+        <value>conf/azkaban-users.xml</value>
+    </property>
+
+    <property>
+        <name>azkaban.executorselector.filters</name>
+        <value>StaticRemainingFlowSize,MinimumFreeMemory,CpuStatus</value>
+    </property>
+
+    <property>
+        <name>azkaban.executorselector.comparator.NumberOfAssignedFlowComparator</name>
+        <value>1</value>
+    </property>
+
+    <property>
+        <name>azkaban.executorselector.comparator.Memory</name>
+        <value>1</value>
+    </property>
+
+    <property>
+        <name>azkaban.executorselector.comparator.LastDispatched</name>
+        <value>1</value>
+    </property>
+
+    <property>
+        <name>azkaban.executorselector.comparator.CpuUsage</name>
+        <value>1</value>
+    </property>
 
     <property>
         <name>content</name>
         <display-name>azkaban.properties template</display-name>
         <description>Custom azkaban.properties</description>
         <value>
-#
-Execute.as.user=false
 # Azkaban Personalization Settings
-azkaban.name=Test Env
-azkaban.label=localhost
 azkaban.color=#FF3601
 azkaban.default.servlet.path=/index
 web.resource.dir=web/
-#
-user.manager.class=azkaban.user.XmlUserManager
-user.manager.xml.file=conf/azkaban-users.xml
 #
 jetty.use.ssl=false
 jetty.maxThreads=25
 #jetty.port=10101
 #
 azkaban.use.multiple.executors=true
-azkaban.executorselector.filters=StaticRemainingFlowSize,MinimumFreeMemory,CpuStatus
-azkaban.executorselector.comparator.NumberOfAssignedFlowComparator=1
-azkaban.executorselector.comparator.Memory=1
-azkaban.executorselector.comparator.LastDispatched=1
-azkaban.executorselector.comparator.CpuUsage=1
+# azkaban.executorselector.filters=StaticRemainingFlowSize,MinimumFreeMemory,CpuStatus
+# azkaban.executorselector.comparator.NumberOfAssignedFlowComparator=1
+# azkaban.executorselector.comparator.Memory=1
+# azkaban.executorselector.comparator.LastDispatched=1
+# azkaban.executorselector.comparator.CpuUsage=1
 #
 azkaban.jobtype.plugin.dir=plugins/jobtypes
         </value>

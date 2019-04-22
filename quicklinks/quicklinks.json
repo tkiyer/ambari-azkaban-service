@@ -7,8 +7,8 @@
     },
     "links": [
       {
-        "name": "azkaban_web",
-        "label": "Azkaban Web",
+        "name": "azkaban_web_ui",
+        "label": "Azkaban Web UI",
         "component_name": "AZKABAN_WEB",
         "requires_user_name": "false",
         "url": "%@://%@:%@",

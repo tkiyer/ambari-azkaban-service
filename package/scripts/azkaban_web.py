@@ -42,7 +42,7 @@ class WebServer(Script):
                 AZKABAN_HOME + '/plugins/jobtypes',
             )
         )
-        Execute('echo execute.as.user=false > {0} '.format(AZKABAN_HOME + '/plugins/jobtypes/commonprivate.properties'))
+        Execute('echo execute.as.user=true > {0} '.format(AZKABAN_HOME + '/plugins/jobtypes/commonprivate.properties'))
         Execute(
             'export JAVA_HOME={0} && tar -xf /tmp/{1} -C {2} --strip-components 1'.format(
                 java_home,
@@ -71,12 +71,14 @@ class WebServer(Script):
                 raise ef
 
     def configure(self, env):
-        from params import azkaban_db, azkaban_web_properties, azkaban_users, global_properties, log4j_properties
+        from params import azkaban_db, azkaban_mail, azkaban_web_properties, azkaban_users, global_properties, log4j_properties
         key_val_template = '{0}={1}\n'
 
         with open(path.join(AZKABAN_CONF, 'azkaban.properties'), 'w') as f:
             for key, value in azkaban_db.iteritems():
                 f.write(key_val_template.format(key, value))
+            for key, value in azkaban_mail.iteritems():
+                f.write(key_val_template.format(key, value))    
             for key, value in azkaban_web_properties.iteritems():
                 if key != 'content':
                     f.write(key_val_template.format(key, value))
