@@ -23,8 +23,8 @@ from resource_management.libraries.script.script import Script
 class WebServer(Script):
     def install(self, env):
         from params import java_home, azkaban_db
-        Execute('wget --no-check-certificate {0}  -O /tmp/{1}'.format(AZKABAN_WEB_URL, AZKABAN_NAME))
-        Execute('wget --no-check-certificate {0}  -O /tmp/{1}'.format(AZKABAN_DB_URL, AZKABAN_SQL))
+        Execute('{0} | xargs wget -O /tmp/{1}.tgz'.format(AZKABAN_WEB_URL, AZKABAN_NAME))
+        Execute('{0} | xargs wget -O /tmp/{1}'.format(AZKABAN_DB_URL, AZKABAN_SQL))
         Execute(
             'mysql -h{0} -P{1} -D{2} -u{3} -p{4} < {5}'.format(
                 azkaban_db['mysql.host'],
@@ -35,16 +35,9 @@ class WebServer(Script):
                 '/tmp/{0}'.format(AZKABAN_SQL),
             )
         )
-        Execute(
-            'mkdir -p {0} {1} {2} || echo "whatever"'.format(
-                AZKABAN_HOME + '/conf',
-                AZKABAN_HOME + '/extlib',
-                AZKABAN_HOME + '/plugins/jobtypes',
-            )
-        )
         Execute('echo execute.as.user=true > {0} '.format(AZKABAN_HOME + '/plugins/jobtypes/commonprivate.properties'))
         Execute(
-            'export JAVA_HOME={0} && tar -xf /tmp/{1} -C {2} --strip-components 1'.format(
+            'export JAVA_HOME={0} && tar -xf /tmp/{1}.tgz -C {2} --strip-components 1'.format(
                 java_home,
                 AZKABAN_NAME,
                 AZKABAN_HOME

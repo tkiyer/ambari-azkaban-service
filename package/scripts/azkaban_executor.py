@@ -23,16 +23,16 @@ from resource_management.libraries.script.script import Script
 class ExecutorServer(Script):
     def install(self, env):
         from params import java_home
-        Execute('wget --no-check-certificate {0}  -O /tmp/{1}'.format(AZKABAN_EXECUTOR_URL, AZKABAN_NAME))
-        Execute('wget --no-check-certificate {0}  -O /tmp/{1}'.format(AZKABAN_EXEC_AS_USER_C_URL, 'execute-as-user.c'))
+        Execute('{0} | xargs wget -O /tmp/{1}.tgz'.format(AZKABAN_EXECUTOR_URL, AZKABAN_NAME))
+        Execute('{0} | xargs wget -O /tmp/{1}'.format(AZKABAN_EXEC_AS_USER_C_URL, 'execute-as-user.c'))
         Execute(
-            'mkdir -p {0} {1} {2} {3} || echo "whatever"'.format(
-                AZKABAN_HOME + '/conf',
-                AZKABAN_HOME + '/extlib',
-                AZKABAN_HOME + '/plugins/jobtypes',
-                AZKABAN_HOME + '/native-lib',
+            'export JAVA_HOME={0} && tar -xf /tmp/{1}.tgz -C {2} --strip-components 1'.format(
+                java_home,
+                AZKABAN_NAME,
+                AZKABAN_HOME
             )
         )
+        Execute('mkdir {0}'.format(AZKABAN_HOME + '/native-lib'))
         Execute('gcc /tmp/execute-as-user.c -o /tmp/execute-as-user')
         Execute('cp /tmp/execute-as-user /usr/local/azkaban/native-lib')
         Execute('chown root /usr/local/azkaban/native-lib/execute-as-user')
@@ -40,13 +40,6 @@ class ExecutorServer(Script):
         Execute('echo execute.as.user=true > {0} '.format(AZKABAN_HOME + '/plugins/jobtypes/commonprivate.properties'))
         Execute('echo azkaban.native.lib=/usr/local/azkaban/native-lib > {0} '.format(AZKABAN_HOME + '/plugins/jobtypes/commonprivate.properties'))
         Execute('echo azkaban.group.name=hadoop > {0} '.format(AZKABAN_HOME + '/plugins/jobtypes/commonprivate.properties'))
-        Execute(
-            'export JAVA_HOME={0} && tar -xf /tmp/{1} -C {2} --strip-components 1'.format(
-                java_home,
-                AZKABAN_NAME,
-                AZKABAN_HOME
-            )
-        )
         self.configure(env)
 
     def stop(self, env):
