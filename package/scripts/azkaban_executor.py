@@ -26,7 +26,7 @@ class ExecutorServer(Script):
         Execute('{0} | xargs wget -O /tmp/azkaban-exec.tgz'.format(AZKABAN_EXECUTOR_URL))
         Execute('{0} | xargs wget -O /tmp/execute-as-user.c'.format(AZKABAN_EXEC_AS_USER_C_URL))
         Execute(
-            'export JAVA_HOME={0} && tar -zxvf /tmp/azkaban-exec.tgz -C {1} --strip-components 1'.format(
+            'export JAVA_HOME={0} && tar -zxvf /tmp/azkaban-exec.tgz -C {1}'.format(
                 java_home,
                 AZKABAN_INSTALL_DIR
             )

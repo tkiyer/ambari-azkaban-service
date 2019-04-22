@@ -36,7 +36,7 @@ class WebServer(Script):
         )
         
         Execute(
-            'export JAVA_HOME={0} && tar -zxvf /tmp/azkaban-web.tgz -C {1} --strip-components 1'.format(
+            'export JAVA_HOME={0} && tar -zxvf /tmp/azkaban-web.tgz -C {1}'.format(
                 java_home,
                 AZKABAN_INSTALL_DIR
             )
