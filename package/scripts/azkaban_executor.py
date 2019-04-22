@@ -18,11 +18,11 @@ from common import AZKABAN_EXECUTOR_URL, AZKABAN_EXEC_HOME, AZKABAN_INSTALL_DIR,
 from resource_management.core.exceptions import ExecutionFailed, ComponentIsNotRunning
 from resource_management.core.resources.system import Execute
 from resource_management.libraries.script.script import Script
+from params import java_home
 
 
 class ExecutorServer(Script):
     def install(self, env):
-        from params import java_home
         Execute('{0} | xargs wget -O /tmp/azkaban-exec.tgz'.format(AZKABAN_EXECUTOR_URL))
         Execute('{0} | xargs wget -O /tmp/execute-as-user.c'.format(AZKABAN_EXEC_AS_USER_C_URL))
         Execute(

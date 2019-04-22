@@ -19,10 +19,10 @@ from resource_management.core.exceptions import ExecutionFailed, ComponentIsNotR
 from resource_management.core.resources.system import Execute
 from resource_management.libraries.script.script import Script
 
+from params import java_home, azkaban_db
 
 class WebServer(Script):
     def install(self, env):
-        from params import java_home, azkaban_db
         Execute('{0} | xargs wget -O /tmp/azkaban-web.tgz'.format(AZKABAN_WEB_URL))
         Execute('{0} | xargs wget -O /tmp/azkaban-create-all.sql'.format(AZKABAN_DB_URL))
         Execute(
