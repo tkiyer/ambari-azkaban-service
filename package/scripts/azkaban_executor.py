@@ -51,7 +51,7 @@ class ExecutorServer(Script):
         from params import azkaban_executor_properties, java_home
         self.configure(env)
         Execute('cd {0} && export PATH=$PATH:{1}/bin && bin/start-exec.sh'.format(AZKABAN_EXEC_HOME, java_home))
-
+        Execute('sleep 30')
         Execute(
             'curl http://localhost:{0}/executor?action=activate'.format(azkaban_executor_properties['executor.port'])
         )
