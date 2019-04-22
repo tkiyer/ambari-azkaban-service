@@ -37,6 +37,7 @@
         <description>Custom azkaban.properties</description>
         <value>
 azkaban.jobtype.plugin.dir=plugins/jobtypes
+default.timezone.id=Asia/Shanghai
 #
 # Azkaban Executor settings
         </value>
