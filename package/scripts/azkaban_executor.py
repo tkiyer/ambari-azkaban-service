@@ -39,8 +39,8 @@ class ExecutorServer(Script):
         Execute('chown root {0}'.format(AZKABAN_EXEC_HOME + '/native-lib/execute-as-user'))
         Execute('chown 6050 {0}'.format(AZKABAN_EXEC_HOME + '/native-lib/execute-as-user'))
         Execute('echo execute.as.user=true > {0} '.format(AZKABAN_EXEC_HOME + '/plugins/jobtypes/commonprivate.properties'))
-        Execute('echo azkaban.native.lib={0} > {1} '.format(AZKABAN_EXEC_HOME + '/native-lib', AZKABAN_EXEC_HOME + '/plugins/jobtypes/commonprivate.properties'))
-        Execute('echo azkaban.group.name=hadoop > {0} '.format(AZKABAN_EXEC_HOME + '/plugins/jobtypes/commonprivate.properties'))
+        Execute('echo azkaban.native.lib={0} >> {1} '.format(AZKABAN_EXEC_HOME + '/native-lib', AZKABAN_EXEC_HOME + '/plugins/jobtypes/commonprivate.properties'))
+        Execute('echo azkaban.group.name=hadoop >> {0} '.format(AZKABAN_EXEC_HOME + '/plugins/jobtypes/commonprivate.properties'))
         self.configure(env)
 
     def stop(self, env):
